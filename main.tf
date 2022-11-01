@@ -14,8 +14,9 @@ resource "aws_s3_bucket" "mybucket" {
    server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.mykey.arn
-        sse_algorithm     = "aws:kms"
+        #kms_master_key_id = aws_kms_key.mykey.arn
+        sse_algorithm     = "AES256"
+        #sse_algorithm     = "aws:kms"
       }
     }
    }
@@ -48,15 +49,15 @@ resource "aws_s3_bucket" "mybucket" {
    }
 
 
-    lifecycle_rule {
-    id      = "tmp"
-    prefix  = "tmp/"
-    enabled = true
+   # lifecycle_rule {
+    #id      = "tmp"
+    #prefix  = "tmp/"
+    #enabled = true
 
-    expiration {
-      date = "2016-01-12"
-    }
-    } 
+    #expiration {
+     # date = "2016-01-12"
+    #}
+    # } 
   
    replication_configuration {
     role = aws_iam_role.replication.arn
@@ -100,17 +101,19 @@ resource "aws_s3_bucket_versioning" "versioning" {
 }
 
 
-resource "aws_kms_key" "mykey" {
-  description             = "This key is used to encrypt bucket objects"
-  deletion_window_in_days = 10
-}
+#resource "aws_kms_key" "mykey" {
+ # description             = "This key is used to encrypt bucket objects"
+  #deletion_window_in_days = 10
+#}
 
 
 resource "aws_s3_bucket_object" "example" {
-  key        = "someobject"
+  key        = "index1"
   bucket     = aws_s3_bucket.mybucket.id
   source     = "index.html"
-  kms_key_id = aws_kms_key.mykey.arn
+  #kms_key_id = aws_kms_key.mykey.arn
+  server_side_encryption = "AES256"
+
 }
 
 

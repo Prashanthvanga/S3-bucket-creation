@@ -1,5 +1,5 @@
 resource "aws_iam_role" "replication" {
-  name = "tf-iam-role-replication-12345"
+  name = "tf-iam-role-replication-123456"
 
   assume_role_policy = <<POLICY
 {
@@ -19,7 +19,7 @@ POLICY
 }
 
 resource "aws_iam_policy" "replication" {
-  name = "tf-iam-role-policy-replication-12345"
+  name = "tf-iam-role-policy-replication-123456"
 
   policy = <<POLICY
 {
@@ -65,10 +65,47 @@ resource "aws_iam_role_policy_attachment" "replication" {
   policy_arn = aws_iam_policy.replication.arn
 }
 
+
+# Repliicated S3
 resource "aws_s3_bucket" "destination" {
   bucket = "dmc3-test-backup"
-
+   provider = aws.usw2
   versioning {
     enabled = true
   }
+
+  lifecycle_rule {
+    id      = "log"
+    enabled = true
+
+    prefix = "log/"
+
+    tags = {
+      rule      = "log"
+      autoclean = "true"
+    }
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA" # or "ONEZONE_IA"
+    }
+
+    transition {
+      days          = 60
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 90
+    }
+   }
+
+   server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = "AES256"
+      }
+    }
+   }
+
 }
