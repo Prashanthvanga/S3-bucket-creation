@@ -1,0 +1,15 @@
+resource "aws_kms_key" "mrk" {
+  description         = "Multi-region KMS key "
+  customer_master_key_spec   = "SYMMETRIC_DEFAULT"
+  key_usage           = "ENCRYPT_DECRYPT"
+  is_enabled          = true
+  multi_region        = true #Indicates whether the KMS key is a multi-Region
+  enable_key_rotation = true #Specifies whether key rotation is enabled
+  deletion_window_in_days = 30 #max 30 After the waiting period ends, AWS KMS deletes the KMS key.
+}
+
+resource "aws_kms_alias" "mrkalias" {
+  name          = "alias/my-key-alias"
+  target_key_id = aws_kms_key.mrk.key_id
+}
+
